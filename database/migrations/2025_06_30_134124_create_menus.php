@@ -10,15 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id('user_id'); // Changed from default 'id' to 'user_id'
+        Schema::create('menus', function (Blueprint $table) {
+            $table->id('menu_id');
+            $table->unsignedBigInteger('merchant_id');
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
+            $table->string('description')->nullable();
+            $table->decimal('price', 10, 2);
             $table->string('photoUrl')->nullable();
-            $table->string('role')->nullable();
-
-            // $table->primary('user_id');
         });
     }
 
@@ -27,6 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('menus');
     }
 };

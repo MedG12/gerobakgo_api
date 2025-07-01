@@ -2,25 +2,22 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\User;
 
-class UpdateUserRequest extends FormRequest
+class UpdateMerchantRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        // Cari user yang akan diupdate
-        $userToUpdate = User::find($this->route('id'));
+        $userToUpdate = User::find($this->route(param: 'id'));
 
-        // Jika user tidak ditemukan
         if (!$userToUpdate) {
             return false;
         }
 
-        // Bandingkan dengan user yang sedang login (gunakan guard sanctum)
         return $userToUpdate->id === auth()->id() || auth()->user()->role === 'admin';
     }
 
@@ -29,12 +26,14 @@ class UpdateUserRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:users,email,' . $this->route('id'),
-            'photoUrl' => 'nullable|string',
+            'photoUrl' => 'sometimes|string',
+            'description' => 'sometimes|string',
+            'openHour' => 'sometimes|required|date_format:H:i:s|before:closeHour',
+            'closeHour' => 'sometimes|required|date_format:H:i:s|after:openHour'
         ];
     }
 }

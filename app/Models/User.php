@@ -22,7 +22,7 @@ class User extends Authenticatable
         'remember_token',
     ];
     public $timestamps = false;
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'user_id';
     protected $keyType = 'int';
     public $incrementing = true;
 }

@@ -7,7 +7,10 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Models\User;
 use Hash;
-use Request;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class UserController extends Controller
 {
@@ -34,7 +37,15 @@ class UserController extends Controller
         $validated['password'] = Hash::make($validated['password']);
         // Create the user
         $user = User::create($validated);
-        return response()->json($user, 201);
+
+        auth()->login($user); // Login tanpa perlu attempt lagi
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'data' => $user,
+            'token' => $token
+        ], 201);
     }
 
     /**
@@ -58,7 +69,7 @@ class UserController extends Controller
             ]);
         }
 
-        return response()->json(['success' => false, 'message' => 'Credentials do not match our records'], 401);
+        return response()->json(['success' => false, 'message' => 'Username atau password salah'], 401);
     }
 
 
@@ -88,5 +99,57 @@ class UserController extends Controller
     {
         auth()->user()->tokens()->delete();
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+
+    public function uploadImage(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        // Validate the image file
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
+        ]);
+
+        try {
+            // Create image manager with desired driver
+            $manager = new ImageManager(new Driver());
+
+            // Read the image file correctly
+            $image = $manager->read($request->file('image')->getPathname());
+
+            // Resize and encode the image
+            $image->cover(300, 300); // This will crop to fit
+            $encodedImage = $image->toJpeg(80); // Convert to JPEG with 80% quality
+
+            // Delete old photo if exists
+            if ($user->photoUrl) {
+                $oldPhotoPath = str_replace('/storage', 'public', parse_url($user->photoUrl, PHP_URL_PATH));
+                Storage::delete($oldPhotoPath);
+            }
+
+            // Generate unique filename
+            $fileName = 'user_' . $user->id . '_' . time() . '.jpg';
+            $storagePath = 'public/users/photos/' . $fileName;
+
+            // Save the image to storage
+            Storage::put($storagePath, $encodedImage);
+
+            // Update user record
+            $user->photoUrl = $storagePath;
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'data' => $user,
+                'message' => 'Image uploaded successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload image: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
