@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Merchant;
 
-class UpdateMerchantRequest extends FormRequest
+class UpdateLocationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,7 +18,7 @@ class UpdateMerchantRequest extends FormRequest
             return false;
         }
 
-        return $merchantToUpdate->user->user_id === auth()->id() || auth()->user()->role === 'admin';
+        return $merchantToUpdate->user->user_id === auth()->id();
     }
 
     /**
@@ -29,11 +29,9 @@ class UpdateMerchantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string',
-            'photoUrl' => 'sometimes|string',
-            'description' => 'sometimes|string',
-            'openHour' => 'sometimes|required|date_format:H:i:s|before:closeHour',
-            'closeHour' => 'sometimes|required|date_format:H:i:s|after:openHour'
+            'user_id' => 'required|exists:users,user_id',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ];
     }
 }

@@ -17,8 +17,6 @@ return new class extends Migration {
             $table->string('password');
             $table->string('photoUrl')->nullable();
             $table->string('role')->nullable();
-
-            // $table->primary('user_id');
         });
     }
 

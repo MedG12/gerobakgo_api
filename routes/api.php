@@ -22,5 +22,6 @@ Route::prefix('merchant')->group(function () {
     Route::get('/{id}', [App\Http\Controllers\MerchantController::class, 'show'])->middleware('auth:sanctum');
     Route::get('/detail/{id}', [App\Http\Controllers\MerchantController::class, 'detail'])->middleware('auth:sanctum');
     Route::post('/', [App\Http\Controllers\MerchantController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('location/update/{id}', [App\Http\Controllers\MerchantController::class, 'updateLocation'])->middleware('auth:sanctum');
     Route::put('/{id}', [App\Http\Controllers\MerchantController::class, 'update'])->middleware('auth:sanctum');
 });

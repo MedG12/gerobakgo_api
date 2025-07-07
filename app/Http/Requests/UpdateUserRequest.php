@@ -21,7 +21,7 @@ class UpdateUserRequest extends FormRequest
         }
 
         // Bandingkan dengan user yang sedang login (gunakan guard sanctum)
-        return $userToUpdate->id === auth()->id() || auth()->user()->role === 'admin';
+        return $userToUpdate->user_id === auth()->id() || auth()->user()->role === 'admin';
     }
 
     /**
@@ -33,8 +33,8 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:users,email,' . $this->route('id'),
-            'photoUrl' => 'nullable|string',
+            'email' => 'sometimes|email|unique:users,email',
+            'photoUrl' => 'sometimes|nullable|string',
         ];
     }
 }

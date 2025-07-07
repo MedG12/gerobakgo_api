@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,8 +20,9 @@ class MerchantResource extends JsonResource
             'name' => $this->user->name,
             'photoUrl' => $this->user->photoUrl,
             'description' => $this->description,
-            'openHour' => $this->openHour,
-            'closeHour' => $this->closeHour,
+            'openHour' => Carbon::parse($this->openHour)->format('H:i'),
+            'closeHour' => Carbon::parse($this->closeHour)->format('H:i'),
+            'location' => $this->location
         ];
     }
 }

@@ -141,7 +141,7 @@ class UserController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $user,
+                'data' => $user->photoUrl,
                 'message' => 'Image uploaded successfully.'
             ]);
 
